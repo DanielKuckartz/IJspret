@@ -4,7 +4,6 @@
 #include <vector> // in 'voortbrenger::voortbrenger()'
 #include <iostream> // std::cout
 #include <iomanip> // std::setprecision()
-#include <algorithm> // std::sort in 'Torenveelterm::maakequivalent'
 
 // Vermenigvuldig een voortbrenger met een andere voortbrenger
 voortbrenger& voortbrenger::operator*= (const voortbrenger& rhs) {
@@ -82,7 +81,7 @@ void Torenveelterm::leesin(const char filename[]) {
 
 Torenveelterm::Torenveelterm(bool rhsbord[maxN][maxN], int h, int b) {
 	hoogte = min(h, maxN);
-	hoogte = max(0, hoogte); // TODO of std::size_t
+	hoogte = max(0, hoogte);
 	breedte = min(b, maxN);
 	hoogte = max(0, breedte);
 	for (int i = 0; i < maxN; i++)
@@ -149,26 +148,23 @@ veld Torenveelterm::vinddame (veld dame, veld koning) {
 			dame.x = 0;
 		}
 		while (dame.x < breedte) {
-			dame.x++;
 			if ( !bord[dame.y][dame.x] && dame != koning )
 				return dame;
+			dame.x++;
 		}
 		// gevraagd veld nog niet gevonden
 		dame.x = koning.x; 
 		dame.y = 0;
 	}
 	while (dame.y < hoogte) {
-		dame.y++;
 		if ( !bord[dame.y][dame.x] && dame != koning )
 			return dame;
+		dame.y++;
 	}
 	return koning;
 }
 
-// Op moment van aanroepen is de koning niet-interfererend met de rest van het 
-//   bord. Dit is een speciaal geval van eigenschap 1. Dit doen we, omdat de 
-//   volledige implementatie van Eigenschap 1 een hoge complexiteit heeft t.o.v.
-//   enkel eigenschap 2 uitvoeren.
+// Op moment van aanroepen is de koning niet-interfererend met de rest van het bord.
 voortbrenger Torenveelterm::eigenschap1 (veld dame) {
 	voortbrenger koningsveld{{1, 1}};
 	Torenveelterm E(bord, hoogte, breedte);
@@ -188,7 +184,7 @@ voortbrenger Torenveelterm::eigenschap2 (veld dame, veld koning) {
 	for (int i = 0; i < hoogte; i++)
 		D.bord[i][dame.x] = true;
 	E.berekenveelterm(dame, koning); // koning blijft onveranderd
-	veelterm = D.berekenveelterm(); // TODO kan efficienter. We hoeven rijen, kolommen niet weer in O(n^2) te berekenen // FIXME
+	veelterm = D.berekenveelterm(); 
 	it = veelterm.coefficienten.begin();
 	veelterm.coefficienten.insert(it, 0); // vermenigvuldiging met x
 	veelterm += E.veelterm;
@@ -226,6 +222,10 @@ long long Torenveelterm::nr_permutaties () {
 		return 0;
 	berekenveelterm();
 	veelterm.coefficienten.resize(hoogte+1); // tegen out-of-bound
+for (int i = 0; i < veelterm.size(); i++)
+	std::cout << veelterm[i] << ' ';
+std::cout << std::endl;
+
 	result += teken(positief) * f * veelterm[hoogte];
 	for (int k = hoogte-1; k >= 0; --k) {
 		positief = !positief;
@@ -237,31 +237,4 @@ long long Torenveelterm::nr_permutaties () {
 						<< "En de kans is op zo'n toewijzing is " << std::setprecision(4) 
 						<< kans << std::endl;
 	return result;
-}
-
-// TODO Testen met gdb
-// Verandert het bord in een ander bord waarvoor de veelterm hetzelfde is
-Torenveelterm& Torenveelterm::maakequivalent () {
-	int rijen[hoogte] = {}, kolommen[breedte] = {}; // TODO member voor hergebruik
-	for (int i = 0; i < hoogte; i++) {
-		for (int j = 0; j < breedte; j++) {
-			if (!bord[i][j]) {
-				rijen[i]++;
-				kolommen[j]++;
-			}
-		}
-	}
-	std::sort( rijen, rijen + hoogte );
-	std::sort( kolommen, kolommen + breedte );
-	clear();
-	for (int i = 0; i < hoogte; i++) {
-		for (int j = 0; j < breedte; j++) {
-			if (kolommen[j] != 0 && rijen[i] != 0) {
-				bord[i][j] = true;
-				kolommen[j]--;
-				rijen[i]--;
-			}
-		}
-	}
-	return *this; // Let op: 'Torenveelterm D = maakequivalent(C)' roept ook operator= aan
 }

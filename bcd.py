@@ -16,7 +16,6 @@ def comprimeer (matrix):
 	B = [] # B in Mat(2m, n), maar dan met alle onnodige variabelen eruit gefilterd
 	for rij in range(m):
 		B.append( [0] * cumu[rij] 
-						#XXX+ [1] * ( cumu[rij+1] - cumu[rij] )
 						+ [waarde for waarde in matrix[rij] if waarde != 0]
 						+ [0] * ( n - cumu[rij+1] ) 
 						)
@@ -87,7 +86,7 @@ def voorkeuren (matrix, n) :
 	for rij in range(m):
 		for kol in range(m):
 			if (matrix[rij][kol] != 0):
-				p.append( transformatie[ A[rij][kol] ] )
+				p.append( transformatie[ matrix[rij][kol] ] )
 				matrix[rij][kol] = 1
 	return p
 
@@ -122,20 +121,10 @@ def opdr_c ():
 	for ijsje in x:
 		print( '0 '*(ijsje) + '1 ' + '0 '*(len(A)-ijsje-1) )
 
-def opdr_d ():
-	# Als een klant n ijsjes wil hebben, dan is dat equivalent met n leerlingen
-	#   die alle 1 ijsje willen en alle dezelfde restricties en voorkeuren hebben
-	#   als deze klant.
-	# 
-	# FIXME waarom is dit een heuristiek en niet optimaal?
-	pass	
-
 def main ():
 	print("Deelopdracht b:")
 	opdr_b()
 	print("\nDeelopdracht c:")
 	opdr_c()
-	print("\nDeelopdracht d:")
-	opdr_d()
 
 main()

@@ -51,7 +51,6 @@ class Torenveelterm {
 		voortbrenger berekenveelterm(veld dame, veld koning);
 		voortbrenger berekenveelterm();
 		long long nr_permutaties ();
-		Torenveelterm& maakequivalent();
 };	
 
 #endif
